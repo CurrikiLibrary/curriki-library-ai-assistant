@@ -13,7 +13,16 @@ class PrimaryAgent:
             model_id="anthropic.claude-v2",
             model_kwargs={"temperature": 0.1},
         )
-        self.library_explorer = LibraryExplorer()
+        self.primary_agent_tools = []
+        library_explorer = LibraryExplorer()
+        self.set_primary_agent_tools(library_explorer)
+
+    def set_primary_agent_tools(self, tool):
+        # push the tool to the primary agent tools
+        self.primary_agent_tools.append(tool)
+
+    def get_primary_agent_tools(self):
+        return self.primary_agent_tools
 
     def runnable(self):
         # Call llm instance to create course
@@ -35,9 +44,6 @@ class PrimaryAgent:
             ),
             ("placeholder", "{messages}"),
         ]).partial(time=datetime.now())
-        primary_agent_tools = [
-            self.library_explorer.explore,
-        ]
-        primary_agent_runnable = primary_agent_prompt | self.llm.bind_tools(primary_agent_tools)
+        primary_agent_runnable = primary_agent_prompt | self.llm.bind_tools(self.primary_agent_tools)
         return primary_agent_runnable
     
