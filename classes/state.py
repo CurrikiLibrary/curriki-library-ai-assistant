@@ -16,7 +16,7 @@ class State(TypedDict):
     diaglog_state: Annotated[
         list[
             Literal[
-                "assistant",
+                "primary_agent",
                 "curriki_library_explorer",
                 "create_course",
                 "create_lesson",
