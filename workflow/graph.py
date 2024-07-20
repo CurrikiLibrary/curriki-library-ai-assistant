@@ -6,6 +6,29 @@ from classes.state import State
 from classes.assistant import Assistant
 from agents.primary.primary_agent import PrimaryAgent
 from workflow.util import create_tool_node_with_fallback
+from tools.user_info import UserInfo
+from langgraph.graph import END, START
+
+class Graph:
+    def __init__(self):
+        self.memory = SqliteSaver.from_conn_string(":memory:")
+        self.builder = StateGraph(State)
+
+    def compile(self):
+        graph = self.builder.compile(checkpointer=self.memory)
+        return graph
+    
+    def workflow(self):
+        def user_info(state: State):
+            return {"user_info": UserInfo.get_user_info.invoke({})}
+        
+        self.builder.add_node("fetch_user_info", user_info)
+        self.builder.add_edge(START, "fetch_user_info")
+
+        self.builder.add_node("primary_agent", Assistant(PrimaryAgent.runnable))
+        self.builder.add_node(
+            "primary_agent_tools", create_tool_node_with_fallback(PrimaryAgent.get_primary_agent_tools)
+        )
 
 builder = StateGraph(State)
 

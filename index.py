@@ -2,7 +2,11 @@ from typing import Annotated, TypedDict
 from langgraph.graph import END, START, StateGraph
 from classes.assistant import Assistant
 
-print(Assistant)
+column_names = ["id", "name", "age"]
+rows = [(1, "Bob", 25)]
+
+results = [dict(zip(column_names, row)) for row in rows]
+print(results)
 exit()
 
 def reduce_value(existing_value: int, new_value: int) -> int:
